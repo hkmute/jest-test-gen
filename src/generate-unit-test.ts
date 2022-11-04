@@ -2,14 +2,14 @@ const template = require('lodash/template');
 const trimEnd = require('lodash/trimEnd');
 
 import { ParsedSourceFile, ParsedImport, ParsedSourceObject } from './model';
-import { MOCK_MODULES_BLACKLIST, IMPORT_MODULES_BLACKLIST } from './constants';
+// import { MOCK_MODULES_BLACKLIST, IMPORT_MODULES_BLACKLIST } from './constants';
 import { basename, extname } from 'path';
 import { readFileSync } from 'fs';
 import debugFactory from 'debug';
 
 const debug = debugFactory('jest-test-gen/generate-unit-test');
 
-const cleanupImportPathName = (rawImportPath: string) => rawImportPath.toLowerCase().replace(/(\'|\")/g, '');
+// const cleanupImportPathName = (rawImportPath: string) => rawImportPath.toLowerCase().replace(/(\'|\")/g, '');
 export function generateUnitTest(path: string, _sourceCode: string, input: ParsedSourceFile) {
   if (input.classes.length > 1) {
     console.warn('Multiple classes detected in source file, will only consider the first class declaration');
@@ -40,12 +40,13 @@ export function generateUnitTest(path: string, _sourceCode: string, input: Parse
     defaultExport: maybeDefaultExport,
     path: relativePath,
     quoteSymbol,
-    allImports: input.imports.filter(currImport => !IMPORT_MODULES_BLACKLIST.includes(cleanupImportPathName(currImport.path))),
-    allMocks: input.imports.filter(currImport => !MOCK_MODULES_BLACKLIST.includes(cleanupImportPathName(currImport.path))),
+    // allImports: input.imports.filter(currImport => !IMPORT_MODULES_BLACKLIST.includes(cleanupImportPathName(currImport.path))),
+    // allMocks: input.imports.filter(currImport => !MOCK_MODULES_BLACKLIST.includes(cleanupImportPathName(currImport.path))),
+    allImports: [],
+    allMocks: [],
     parsedSource: input,
     ...templateOptions,
   };
-  
   const testImports = template(
     readFileSync(`${templateDir}/imports.tpl`).toString()
   )(templateDataMap);

@@ -26,6 +26,16 @@ export function parseSourceFile(file: ts.SourceFile): ParsedSourceFile {
     propTypesPojo: [],
   };
   walker(file);
+  result.exportComponents = result.exportComponents.map(exportComponent => {
+    return {
+      ...exportComponent,
+      props: exportComponent.props?.map(prop => ({
+        ...prop,
+        value: getSamplePropValue(prop),
+      })),
+      propsMatrix: getSampleMatrix(exportComponent.props)
+    }
+  })
   return result;
 
   function walker(node: ts.Node) {
@@ -361,8 +371,8 @@ export function parseSourceFile(file: ts.SourceFile): ParsedSourceFile {
   function exportAssignementWalker(node: ts.ExportAssignment){
     let idName : string | ts.__String = (node.expression as ts.Identifier).escapedText;
     if( node.expression.kind === ts.SyntaxKind.CallExpression &&
-        node.expression.getFullText().trim().startsWith('React.memo') ) {
-      const callExpr = node.expression as ts.CallExpression;
+      (node.expression.getFullText().trim().startsWith('React.memo') || node.expression.getFullText().trim().startsWith('connect')) ) {
+        const callExpr = node.expression as ts.CallExpression;
       if(callExpr.arguments.length && callExpr.arguments[0].kind === ts.SyntaxKind.Identifier){
         idName = callExpr.arguments[0].getFullText(); 
       }
@@ -467,5 +477,41 @@ export function parseSourceFile(file: ts.SourceFile): ParsedSourceFile {
         isOptional: fullPropText.indexOf('isRequired') === -1
       }
     });
+  }
+  function getSamplePropValue(propType: ParsedReactProp) {
+    switch (propType.type) {
+      case "string":
+        return "\"test string\"";
+      case "number":
+        return "{123}";
+      case "boolean":
+        return "{false}";
+      default: {
+        return `{/* ${propType.type} */}`
+      }
+    }
+  }
+  function getSampleMatrix(props: ParsedReactProp[] | undefined) {
+    if (!props?.length) return;
+    const propsMatrix = props.reduce((matrix, prop) => {
+      if (!prop.name) {
+        return matrix;
+      }
+      switch (prop.type) {
+        case "string":
+          matrix[prop.name] = ["test string"];
+          break;
+        case "number":
+          matrix[prop.name] = [123];
+          break;
+        case "boolean":
+          matrix[prop.name] = [true, false];
+          break;
+        default:
+      }
+      return matrix;
+    }, {} as Record<string, any>);
+
+    return propsMatrix;
   }
 }
