@@ -3,6 +3,7 @@ import * as ts from 'typescript';
 export interface ParsedReactProp {
   name: ts.__String | string,
   type: ts.__String | string,
+  value?: any,
   isOptional: boolean,
 }
 export interface ParsedPropTypePojo {

@@ -19,8 +19,7 @@
   "scripts": {
     "build:dev": "tsc --watch",
     "build": "tsc",
-    "dev": "ts-node ./src/cli.ts",
-    "test": "jest"
+    "dev": "ts-node ./src/cli.ts"
   },
   "repository": {
     "type": "git",
